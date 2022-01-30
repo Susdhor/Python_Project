@@ -4,11 +4,14 @@ import csv
 
 
 class DataManager:
+    # Protected variable
     _database_name = "vaccination_info.db"
 
+    # Empty Constructor
     def __init__(self):
         pass
 
+    # Creating Database and necessary Tables with relational constraints
     def create_database(self):
         db_connection = sqlite3.connect(self._database_name)
         db_cursor = db_connection.cursor()
@@ -95,6 +98,7 @@ class DataManager:
         db_connection.commit()
         self.__normalize_data()
 
+
     def __normalize_data(self):
         db_connection = sqlite3.connect(self._database_name)
         db_cursor = db_connection.cursor()
@@ -104,8 +108,11 @@ class DataManager:
         db_cursor.execute(
             "insert into vaccines(name, source, source_website) select vaccines, source_name , source_website  from vaccin_covid_csv group by vaccines")
         db_connection.commit()
+        # Collecting all the country code and ids in a dictionary so that we don't have to srearch the database each time we update a row
         countries = self.__get_country_ids()
+        # Collecting all the vaccine name and ids in a dictionary so that we don't have to srearch the database each time we update a row
         vaccines = self.__get_vaccine_ids()
+        # Collecting all the original records loaded from csv file for updating in the relational tables
         db_cursor.execute("select * from vaccin_covid_csv")
         records = db_cursor.fetchall()
         normalized_db_connection = sqlite3.connect(self._database_name)
