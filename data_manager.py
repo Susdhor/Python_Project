@@ -247,6 +247,20 @@ class DataManager:
         db_connection.close()
         return vaccines
 
+    def get_column_data(self, country_name, column_name, limit):
+        db_connection = sqlite3.connect(self._database_name)
+        db_cursor = db_connection.cursor()
+        db_cursor.execute("select date, "+column_name+" from vaccine_info, countries WHERE countries.name = ? AND countries.id = vaccine_info.country_id LIMIT 0, ?", [country_name, limit])
+        dates = []
+        column_data = []
+        records = db_cursor.fetchall()
+        for row in records:
+            dates.append(row[0])
+            column_data.append(row[1])
+        db_cursor.close()
+        db_connection.close()
+        return [dates, column_data]
+
     # public method
     def clean_data(self):
         db_connection = sqlite3.connect(self._database_name)
@@ -261,12 +275,6 @@ class DataManager:
         db_connection.commit()
         db_cursor.close()
         db_connection.close()
-
-if __name__ == "__main__":
-    data_manager = DataManager()
-    data_manager.create_database()
-    data_manager.clean_data()
-    data_manager.seed_database('vaccin_covid.csv')
     
     
     
